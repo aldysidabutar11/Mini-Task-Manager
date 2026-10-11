@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
+# SQLite database (created on first run)
+server/data/
+*.db
+*.db-shm
+*.db-wal
+
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log

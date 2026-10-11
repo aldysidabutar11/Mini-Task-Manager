@@ -1,0 +1,22 @@
+{
+  "name": "mini-task-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mini Task Manager with an immutable audit trail (Express + React + SQLite)",
+  "engines": {
+    "node": "^22.14.0 || ^24.0.0 || ^26.0.0"
+  },
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently --kill-others-on-fail --names server,client --prefix-colors blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "test": "npm test --prefix server",
+    "typecheck": "npm run typecheck --prefix server && npm run typecheck --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

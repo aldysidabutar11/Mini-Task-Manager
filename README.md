@@ -546,6 +546,39 @@ In this order:
 *If you used AI, which parts did it help with and how did you validate them?*
 
 <!-- TODO: written by author -->
+**Gaps I found through manual testing**
+
+Two of the most important changes in this project came from me using the app, not from the
+original specification.
+
+*1. Task creation was not recorded.*
+While testing, I created a task as "Johan Sutheja" and then opened the Activity feed. Only status
+changes appeared, so there was no way to tell who had created the task. At first I suspected the
+actor wasn't being sent correctly, so I checked the request payload in the browser DevTools.
+The payload was correct: the status change had been made under "Aldy Samuel" because that was
+the actor selected at the time. So attribution worked as designed, but the creation event itself
+was simply never recorded.
+
+I considered two options: adding a `created_by` column to the tasks table, or writing creation as
+the first audit entry (`null → to_do`). I chose the audit entry, because it keeps the audit log as
+the single source of truth for "who did what". The "Created by" label on each card is read from
+that first entry instead of being stored twice. The cost was making `from_status` nullable, so I
+added a CHECK constraint that only allows a null `from_status` when `to_status` is `to_do`.
+
+*2. Task deletion was not recorded either.*
+Later I deleted a task and noticed the Activity feed didn't show who deleted it. I applied the same
+pattern in reverse: deletion writes an entry from the task's last status to `null`, in the same
+transaction as archiving the task.
+
+This gave me a clear rule I can defend: the task's lifecycle (creation, status changes, deletion)
+is always audited, while edits to the title or description are not. Those edits can't corrupt the
+history, because every audit entry keeps a snapshot of the title at the time it was written.
+
+I discussed these options with Claude (chat) before deciding, and Claude Code implemented them.
+I then verified each change myself: creating a task as one actor, moving it as another, deleting it
+as a third, and checking that the Activity feed and the task's history showed all three actors
+correctly.
+
 
 ---
 
